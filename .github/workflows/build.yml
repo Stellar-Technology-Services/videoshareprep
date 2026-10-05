@@ -1,8 +1,12 @@
-name: Build macOS binaries
+name: Release macOS binaries
 
 on:
   push:
-  workflow_dispatch:
+    tags:
+      - "v[0-9]+.[0-9]+.[0-9]+"
+
+permissions:
+  contents: write
 
 jobs:
   build:
@@ -27,7 +31,7 @@ jobs:
 
       - name: Build
         run: |
-          VERSION=$(tr -d '[:space:]' < VERSION)
+          VERSION="${GITHUB_REF_NAME#v}"
           go build -ldflags "-X main.version=${VERSION}" -o vidprep .
           tar -czf vidprep_${VERSION}_darwin_${{ matrix.goarch }}.tar.gz vidprep README.md
           echo "VERSION=${VERSION}" >> "$GITHUB_ENV"
@@ -36,3 +40,18 @@ jobs:
         with:
           name: vidprep_${{ env.VERSION }}_darwin_${{ matrix.goarch }}
           path: vidprep_${{ env.VERSION }}_darwin_${{ matrix.goarch }}.tar.gz
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: dist
+          merge-multiple: true
+
+      - name: Create GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/*.tar.gz
+          generate_release_notes: true

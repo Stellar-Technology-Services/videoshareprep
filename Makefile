@@ -1,5 +1,5 @@
 BINARY  := vidprep
-VERSION ?= $(shell cat VERSION 2>/dev/null | tr -d '[:space:]' || echo "dev")
+VERSION ?= $(shell git describe --tags --always --dirty 2>/dev/null | sed 's/^v//' || echo dev)
 LDFLAGS := -ldflags "-X main.version=$(VERSION)"
 
 .PHONY: build run install uninstall test lint fmt tidy clean release snapshot deps
