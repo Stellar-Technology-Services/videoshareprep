@@ -1,0 +1,38 @@
+name: Build macOS binaries
+
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: build (${{ matrix.goarch }})
+    runs-on: macos-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        goarch: [arm64, amd64]
+    env:
+      CGO_ENABLED: "0"
+      GOOS: darwin
+      GOARCH: ${{ matrix.goarch }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+
+      - name: Build
+        run: |
+          VERSION=$(tr -d '[:space:]' < VERSION)
+          go build -ldflags "-X main.version=${VERSION}" -o vidprep .
+          tar -czf vidprep_${VERSION}_darwin_${{ matrix.goarch }}.tar.gz vidprep README.md
+          echo "VERSION=${VERSION}" >> "$GITHUB_ENV"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: vidprep_${{ env.VERSION }}_darwin_${{ matrix.goarch }}
+          path: vidprep_${{ env.VERSION }}_darwin_${{ matrix.goarch }}.tar.gz

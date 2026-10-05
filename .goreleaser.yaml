@@ -1,0 +1,61 @@
+version: 2
+
+before:
+  hooks:
+    - go mod tidy
+
+builds:
+  - env:
+      - CGO_ENABLED=0
+    goos:
+      - darwin
+      - linux
+    goarch:
+      - arm64
+      - amd64
+    binary: vidprep
+
+archives:
+  - format: tar.gz
+    name_template: "{{ .ProjectName }}_{{ .Os }}_{{ .Arch }}"
+    files:
+      - LICENSE
+      - README.md
+
+checksum:
+  name_template: "checksums.txt"
+
+snapshot:
+  version_template: "{{ .Tag }}-next"
+
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - "^docs:"
+      - "^test:"
+
+brews:
+  - name: vidprep
+    repository:
+      owner: Stellar-Technology-Services
+      name: homebrew-vidprep
+    directory: Formula
+    homepage: "https://github.com/Stellar-Technology-Services/vidprep"
+    description: "Transcribe local videos to VTT, Markdown, and HTML with closed-caption player pages"
+    license: MIT
+    dependencies:
+      - name: ffmpeg
+      - name: openai-whisper
+        type: optional
+    caveats: |
+      vidprep uses mlx-whisper by default on Apple Silicon for fast local transcription.
+      Install it via pip (not available as a Homebrew formula):
+        pip install mlx-whisper
+
+      If mlx-whisper is not found, vidprep falls back to openai-whisper:
+        brew install openai-whisper
+    install: |
+      bin.install "vidprep"
+    test: |
+      system "#{bin}/vidprep", "--help"
