@@ -55,6 +55,11 @@ brews:
 
       If mlx-whisper is not found, vidprep falls back to openai-whisper:
         brew install openai-whisper
+
+      Or use whisper.cpp (binary: whisper-cpp) with --backend whisper-cpp:
+        brew install whisper-cpp
+      It needs a ggml model: pass --model /path/to/ggml-base.bin, or put
+      ggml-<model>.bin in $WHISPER_CPP_MODEL_DIR.
     install: |
       bin.install "vidprep"
     test: |

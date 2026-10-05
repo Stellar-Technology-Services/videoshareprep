@@ -27,7 +27,7 @@ var rootCmd = &cobra.Command{
 	Use:   "vidprep [directory]",
 	Short: "Transcribe videos to VTT, Markdown, and HTML",
 	Long: `vidprep scans a directory for video files and for each one:
-  1. Transcribes it to .vtt (WebVTT) using mlx_whisper or whisper
+  1. Transcribes it to .vtt (WebVTT) using mlx_whisper, whisper, or whisper-cpp
   2. Converts .vtt to a .md file with title and transcript
   3. Generates a .html page with embedded video, closed captions, and description`,
 	Args: cobra.MaximumNArgs(1),
@@ -41,8 +41,8 @@ func Execute() {
 }
 
 func init() {
-	rootCmd.Flags().StringVar(&flagBackend, "backend", "auto", "transcription backend: auto|mlx|whisper")
-	rootCmd.Flags().StringVar(&flagModel, "model", "base", "model size: tiny|base|small|medium|large")
+	rootCmd.Flags().StringVar(&flagBackend, "backend", "auto", "transcription backend: auto|mlx|whisper|whisper-cpp")
+	rootCmd.Flags().StringVar(&flagModel, "model", "base", "model size: tiny|base|small|medium|large (whisper-cpp: or path to a ggml .bin file)")
 	rootCmd.Flags().BoolVar(&flagForce, "force", false, "regenerate files even if they already exist")
 	rootCmd.Flags().BoolVar(&flagDryRun, "dry-run", false, "print planned actions without writing any files")
 	rootCmd.Flags().StringVar(&flagLanguage, "language", "auto", "language code (e.g. en, fr, ja) or auto")

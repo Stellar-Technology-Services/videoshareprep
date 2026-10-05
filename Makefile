@@ -47,6 +47,11 @@ deps:
 	else \
 		echo "  whisper:     not found — run: brew install openai-whisper"; \
 	fi
+	@if command -v whisper-cpp >/dev/null 2>&1; then \
+		echo "  whisper-cpp: installed"; \
+	else \
+		echo "  whisper-cpp: not found — run: brew install whisper-cpp"; \
+	fi
 
 snapshot:
 	goreleaser build --snapshot --clean
